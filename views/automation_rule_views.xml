@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- Automation Rule Tree View -->
+        <record id="view_automation_rule_tree" model="ir.ui.view">
+            <field name="name">mgp.automation.rule.tree</field>
+            <field name="model">mgp.automation.rule</field>
+            <field name="arch" type="xml">
+                <tree string="Automation Rules">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="user_id"/>
+                    <field name="model_name"/>
+                    <field name="condition_type"/>
+                    <field name="action_type"/>
+                    <field name="active"/>
+                    <field name="execution_count"/>
+                    <field name="last_execution"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- Automation Rule Form View -->
+        <record id="view_automation_rule_form" model="ir.ui.view">
+            <field name="name">mgp.automation.rule.form</field>
+            <field name="model">mgp.automation.rule</field>
+            <field name="arch" type="xml">
+                <form string="Automation Rule">
+                    <header>
+                        <button name="action_test_rule" 
+                                string="Test Rule" 
+                                type="object" 
+                                class="btn-primary"/>
+                        <field name="active" widget="boolean_toggle"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_test_rule" 
+                                    type="object" 
+                                    class="oe_stat_button" 
+                                    icon="fa-flask">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_value">
+                                        <field name="execution_count"/>
+                                    </span>
+                                    <span class="o_stat_text">Executions</span>
+                                </div>
+                            </button>
+                        </div>
+                        
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="Rule Name"/>
+                            </h1>
+                        </div>
+                        
+                        <group>
+                            <group string="Basic Info">
+                                <field name="sequence"/>
+                                <field name="user_id"/>
+                                <field name="model_name"/>
+                                <field name="description"/>
+                            </group>
+                            <group string="Statistics">
+                                <field name="execution_count" readonly="1"/>
+                                <field name="last_execution" readonly="1"/>
+                            </group>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Conditions" name="conditions">
+                                <group>
+                                    <field name="condition_type"/>
+                                    <field name="condition_field" 
+                                           attrs="{'invisible': [('condition_type', 'in', ['always', 'custom'])]}"/>
+                                    <field name="condition_operator" 
+                                           attrs="{'invisible': [('condition_type', 'in', ['always', 'custom'])]}"/>
+                                    <field name="condition_value" 
+                                           attrs="{'invisible': [('condition_type', 'in', ['always', 'custom'])]}"/>
+                                </group>
+                                <group string="Custom Python Code" 
+                                       attrs="{'invisible': [('condition_type', '!=', 'custom')]}">
+                                    <field name="condition_code" 
+                                           widget="ace" 
+                                           options="{'mode': 'python'}"/>
+                                    <div class="alert alert-info">
+                                        <strong>Note:</strong> Use 'record' as the record variable. 
+                                        Return True/False or set 'result' variable.
+                                    </div>
+                                </group>
+                            </page>
+                            
+                            <page string="Actions" name="actions">
+                                <group>
+                                    <field name="action_type"/>
+                                    <field name="action_field" 
+                                           attrs="{'invisible': [('action_type', '!=', 'set_field')]}"/>
+                                    <field name="action_value" 
+                                           attrs="{'invisible': [('action_type', '!=', 'set_field')]}"/>
+                                </group>
+                                <group string="Multiple Fields (JSON)" 
+                                       attrs="{'invisible': [('action_type', '!=', 'set_fields')]}">
+                                    <field name="action_fields" 
+                                           widget="ace" 
+                                           options="{'mode': 'json'}"/>
+                                    <div class="alert alert-info">
+                                        <strong>Example:</strong> {"priority_id": 1, "category_id": 2}
+                                    </div>
+                                </group>
+                                <group string="Custom Python Code" 
+                                       attrs="{'invisible': [('action_type', '!=', 'custom')]}">
+                                    <field name="action_code" 
+                                           widget="ace" 
+                                           options="{'mode': 'python'}"/>
+                                    <div class="alert alert-info">
+                                        <strong>Note:</strong> Use 'record' as the record variable.
+                                    </div>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <!-- Automation Rule Search View -->
+        <record id="view_automation_rule_search" model="ir.ui.view">
+            <field name="name">mgp.automation.rule.search</field>
+            <field name="model">mgp.automation.rule</field>
+            <field name="arch" type="xml">
+                <search string="Automation Rules">
+                    <field name="name"/>
+                    <field name="user_id"/>
+                    <field name="model_name"/>
+                    <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                    <filter string="Inactive" name="inactive" domain="[('active', '=', False)]"/>
+                    <separator/>
+                    <filter string="My Rules" name="my_rules" domain="[('user_id', '=', uid)]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="User" name="group_user" context="{'group_by': 'user_id'}"/>
+                        <filter string="Model" name="group_model" context="{'group_by': 'model_name'}"/>
+                        <filter string="Condition Type" name="group_condition" context="{'group_by': 'condition_type'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <!-- Automation Rule Action -->
+        <record id="action_automation_rule" model="ir.actions.act_window">
+            <field name="name">Automation Rules</field>
+            <field name="res_model">mgp.automation.rule</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_automation_rule_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create your first automation rule!
+                </p>
+                <p>
+                    Automation rules allow you to automatically set field values or execute custom code
+                    when certain conditions are met in your records.
+                </p>
+            </field>
+        </record>
+        
+        <!-- Menu Items -->
+        <menuitem id="menu_automation_root" 
+                  name="Automation" 
+                  sequence="100" 
+                  web_icon="mgp_automation,static/description/icon.png"/>
+                  
+        <menuitem id="menu_automation_rules" 
+                  name="Automation Rules" 
+                  parent="menu_automation_root" 
+                  action="action_automation_rule" 
+                  sequence="10"/>
+                  
+    </data>
+</odoo>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- Courier Request form view - add automation fields -->
+        <record id="view_courier_request_form_automation" model="ir.ui.view">
+            <field name="name">dev.courier.request.form.automation</field>
+            <field name="model">dev.courier.request</field>
+            <field name="inherit_id" ref="dev_courier_management.view_dev_courier_request_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='notes']" position="after">
+                    <field name="auto_filled" readonly="1"/>
+                </xpath>
+            </field>
+        </record>
+        
+        <!-- Courier Request tree view - add automation indicator -->
+        <record id="view_courier_request_tree_automation" model="ir.ui.view">
+            <field name="name">dev.courier.request.tree.automation</field>
+            <field name="model">dev.courier.request</field>
+            <field name="inherit_id" ref="dev_courier_management.view_dev_courier_request_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='state_id']" position="after">
+                    <field name="auto_filled" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+        
+    </data>
+</odoo>

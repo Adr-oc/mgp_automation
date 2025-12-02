@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- User form view - add automation tab -->
+        <record id="view_users_form_automation" model="ir.ui.view">
+            <field name="name">res.users.form.automation</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page string="Automatización" name="automation">
+                        <group>
+                            <group string="Autocompletar de mensajería">
+                                <field name="auto_fill_courier_data" string="Autocompletar datos de mensajería"/>
+                                <field name="default_sender_id" string="Remitente predeterminado"/>
+                                <field name="default_courier_type_id" string="Tipo de mensajería predeterminado"/>
+                                <field name="default_category_id" string="Categoría predeterminada"/>
+                                <field name="default_priority_id" string="Prioridad predeterminada"/>
+                                <field name="default_tag_ids" widget="many2many_tags" string="Etiquetas predeterminadas"/>
+                            </group>
+                            <group string="Configuración de automatización">
+                                <field name="automation_enabled" string="Habilitar automatización"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+        
+    </data>
+</odoo>
