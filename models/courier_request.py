@@ -14,44 +14,45 @@ class CourierRequest(models.Model):
         help='Indicates if this record was auto-filled with user defaults'
     )
     
-    @api.model
-    def create(self, vals):
+    @api.model_create_multi
+    def create(self, vals_list):
         """Override create to implement auto-fill functionality"""
-        # Auto-fill courier data if user has the option enabled
-        if not vals.get('user_id'):
-            vals['user_id'] = self.env.user.id
-            
-        user = self.env['res.users'].browse(vals['user_id'])
-        if user.auto_fill_courier_data and user.automation_enabled:
-            # Auto-fill fields if they are not already set
-            auto_filled_fields = []
-            
-            if not vals.get('sender_id') and user.default_sender_id:
-                vals['sender_id'] = user.default_sender_id.id
-                auto_filled_fields.append('sender_id')
+        # Process each dictionary in vals_list
+        for vals in vals_list:
+            # Auto-fill courier data if user has the option enabled
+            if not vals.get('user_id'):
+                vals['user_id'] = self.env.user.id
                 
-            if not vals.get('courier_type_id') and user.default_courier_type_id:
-                vals['courier_type_id'] = user.default_courier_type_id.id
-                auto_filled_fields.append('courier_type_id')
+            user = self.env['res.users'].browse(vals['user_id'])
+            if user.auto_fill_courier_data and user.automation_enabled:
+                # Auto-fill fields if they are not already set
+                auto_filled_fields = []
                 
-            if not vals.get('category_id') and user.default_category_id:
-                vals['category_id'] = user.default_category_id.id
-                auto_filled_fields.append('category_id')
+                if not vals.get('sender_id') and user.default_sender_id:
+                    vals['sender_id'] = user.default_sender_id.id
+                    auto_filled_fields.append('sender_id')
+                    
+                if not vals.get('courier_type_id') and user.default_courier_type_id:
+                    vals['courier_type_id'] = user.default_courier_type_id.id
+                    auto_filled_fields.append('courier_type_id')
+                    
+                if not vals.get('category_id') and user.default_category_id:
+                    vals['category_id'] = user.default_category_id.id
+                    auto_filled_fields.append('category_id')
+                    
+                if not vals.get('priority_id') and user.default_priority_id:
+                    vals['priority_id'] = user.default_priority_id.id
+                    auto_filled_fields.append('priority_id')
+                    
+                if not vals.get('tag_ids') and user.default_tag_ids:
+                    vals['tag_ids'] = [(6, 0, user.default_tag_ids.ids)]
+                    auto_filled_fields.append('tag_ids')
                 
-            if not vals.get('priority_id') and user.default_priority_id:
-                vals['priority_id'] = user.default_priority_id.id
-                auto_filled_fields.append('priority_id')
-                
-            if not vals.get('tag_ids') and user.default_tag_ids:
-                vals['tag_ids'] = [(6, 0, user.default_tag_ids.ids)]
-                auto_filled_fields.append('tag_ids')
-            
-            # Mark as auto-filled if any fields were filled
-            if auto_filled_fields:
-                vals['auto_filled'] = True
+                # Mark as auto-filled if any fields were filled
+                if auto_filled_fields:
+                    vals['auto_filled'] = True
         
-        request_id = super(CourierRequest, self).create(vals)
-        return request_id
+        return super(CourierRequest, self).create(vals_list)
 
     @api.model
     def default_get(self, fields_list):
